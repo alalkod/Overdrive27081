@@ -48,7 +48,8 @@ public class BeelineDriveTrain extends LinearOpMode {
         wristServo = hardwareMap.get(CRServo.class, "wrist");
         intakeServo = hardwareMap.get(CRServo.class, "intake");
 
-//        armMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        // Prevent arm from falling
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
