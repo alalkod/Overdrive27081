@@ -30,7 +30,7 @@ public class BeelineDriveTrain extends LinearOpMode {
     public void arm() {
         armForce = gamepad2.left_stick_y;
         wristForce = gamepad2.right_stick_x;
-        intakeForce = -gamepad2.left_trigger + gamepad2.right_trigger;
+        intakeForce = gamepad2.left_trigger + -gamepad2.right_trigger;
 
         armMotor.setPower(armForce);
         wristServo.setPower(wristForce);
