@@ -3,15 +3,15 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Mechanum Drive Train")
 public class MechanumDriveTrain extends LinearOpMode {
     private DcMotor flMotor, frMotor, blMotor, brMotor;
-    private float xForce, yForce, yaw, divisor;
 
     // Drive code
     public void drive() {
+        float xForce, yForce, yaw, divisor;
+
         xForce = gamepad1.left_stick_x;
         yForce = -gamepad1.left_stick_y;
         yaw = gamepad1.right_stick_x;

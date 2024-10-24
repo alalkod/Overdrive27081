@@ -11,14 +11,11 @@ public class BeelineDriveTrain extends LinearOpMode {
     private DcMotor flMotor, frMotor;
     private DcMotor armMotor;
     private CRServo wristServo, intakeServo;
-    private float yForce, yaw, divisor;
-    private float armForce;
-    private double armPosition;
-    private double armFinalPos;
-    private float wristForce, intakeForce;
 
     // Drive code
     public void drive() {
+        float yForce, yaw, divisor;
+
         yForce = gamepad1.left_stick_y;
         yaw = gamepad1.right_stick_x;
 
@@ -30,6 +27,11 @@ public class BeelineDriveTrain extends LinearOpMode {
     }
 
     public void arm() {
+        float armForce;
+        double armPosition;
+        double armFinalPos;
+        float wristForce, intakeForce;
+
         // TODO: use PIDF loop to prevent arm from falling from gravity
         armForce = gamepad2.left_stick_y;
         armPosition = armMotor.getCurrentPosition();
