@@ -17,7 +17,7 @@ public class P2BeelineDrive extends LinearOpMode {
 
     // Drive code
     public void drive() {
-        c    }
+            }
 
     public void arm() {
         armForce = gamepad2.left_stick_y;

@@ -13,6 +13,8 @@ public class BeelineDriveTrain extends LinearOpMode {
     private CRServo wristServo, intakeServo;
     private float yForce, yaw, divisor;
     private float armForce;
+    private double armPosition;
+    private double armFinalPos;
     private float wristForce, intakeForce;
 
     // Drive code
@@ -28,11 +30,19 @@ public class BeelineDriveTrain extends LinearOpMode {
     }
 
     public void arm() {
+        // TODO: use PIDF loop to prevent arm from falling from gravity
         armForce = gamepad2.left_stick_y;
+        armPosition = armMotor.getCurrentPosition();
         wristForce = gamepad2.right_stick_x;
         intakeForce = gamepad2.left_trigger + -gamepad2.right_trigger;
 
-        armMotor.setPower(armForce);
+        armFinalPos = armForce * 10 + armPosition;
+
+        telemetry.addData("Arm Encoder Reading", armPosition);
+        telemetry.addData("Arm Target Position", armFinalPos);
+
+        armMotor.setTargetPosition((int) armFinalPos);
+        armMotor.setPower(0.5);
         wristServo.setPower(wristForce);
         intakeServo.setPower(intakeForce);
     }
@@ -49,13 +59,16 @@ public class BeelineDriveTrain extends LinearOpMode {
         intakeServo = hardwareMap.get(CRServo.class, "intake");
 
         // Prevent arm from falling
-        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armMotor.setTargetPosition(armMotor.getCurrentPosition());
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         waitForStart();
 
         while (opModeIsActive()) {
             this.drive();
             this.arm();
+            telemetry.update();
         }
     }
 }
