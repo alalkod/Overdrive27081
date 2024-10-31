@@ -1,16 +1,33 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 //import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
+@Config
 @TeleOp(name="Beeline Drive Train")
 public class BeelineDriveTrain extends LinearOpMode {
     private DcMotor flMotor, frMotor;
-    private DcMotor armMotor;
+    private DcMotorEx armMotor;
     private CRServo wristServo, intakeServo;
+
+    // PID Controller
+    PIDController controller;
+    public static double p = 0, i = 0, d = 0;
+    public static double f = 0;
+    double pid, ff;
+
+    double armPower, wristPower, intakePower;
+    double armPosition;
+    public static double armTargetPosition;
+    final double ticksInDegrees = 700 / 180.0f;
 
     // Drive code
     public void drive() {
@@ -27,44 +44,44 @@ public class BeelineDriveTrain extends LinearOpMode {
     }
 
     public void arm() {
-        float armForce;
-        double armPosition;
-        double armFinalPos;
-        float wristForce, intakeForce;
+        controller.setPID(p, i, d);
 
-        // TODO: use PIDF loop to prevent arm from falling from gravity
-        armForce = gamepad2.left_stick_y;
+        armPower = gamepad2.left_stick_y;
         armPosition = armMotor.getCurrentPosition();
-        wristForce = gamepad2.right_stick_x;
-        intakeForce = gamepad2.left_trigger + -gamepad2.right_trigger;
+        armTargetPosition = armPower * 10 + armPosition;
 
-        armFinalPos = armForce * 10 + armPosition;
+        // PID loop
+        pid = controller.calculate(armPosition, armTargetPosition);
+        ff = Math.cos(Math.toRadians(armTargetPosition / ticksInDegrees)) * f;
 
-        telemetry.addData("Arm Encoder Reading", armPosition);
-        telemetry.addData("Arm Target Position", armFinalPos);
+        armPower = pid + ff;
 
-        armMotor.setTargetPosition((int) armFinalPos);
-        armMotor.setPower(0.5);
-        wristServo.setPower(wristForce);
-        intakeServo.setPower(intakeForce);
+        armMotor.setPower(armPower);
+        wristServo.setPower(wristPower);
+        intakeServo.setPower(intakePower);
+
+        telemetry.addData("armPosition", armPosition);
+        telemetry.addData("armTargetPosition", armTargetPosition);
     }
 
-    public void runOpMode() throws InterruptedException {
-        telemetry.addData("Status", "Waiting");
+    public void runOpMode() {
+        // add telemetry to dashboard
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        telemetry.addData("Status", "Preparing");
         telemetry.update();
 
         // Initialization
         flMotor = hardwareMap.get(DcMotor.class, "fl");
         frMotor = hardwareMap.get(DcMotor.class, "fr");
-        armMotor = hardwareMap.get(DcMotor.class, "arm");
+        armMotor = hardwareMap.get(DcMotorEx.class, "arm");
         wristServo = hardwareMap.get(CRServo.class, "wrist");
         intakeServo = hardwareMap.get(CRServo.class, "intake");
 
-        // Prevent arm from falling
-//        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        armMotor.setTargetPosition(armMotor.getCurrentPosition());
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
+        telemetry.addData("Status", "Ready");
         waitForStart();
 
         while (opModeIsActive()) {
