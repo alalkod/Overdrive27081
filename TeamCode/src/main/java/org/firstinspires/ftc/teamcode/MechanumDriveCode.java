@@ -2,59 +2,48 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 // Telemetry/dashboard
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
+//import com.arcrobotics.ftclib.controller.PIDController;
 
 @Config
 @TeleOp(name="Mechanum Drive Code")
 public class MechanumDriveCode extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;
     float xPower, yPower, yaw, divisor;
-    private DcMotorEx slideMotor, slideRotationMotor;
-    float slidePower, slideRotationPower;
-
-    // PID
-    PIDController controller;
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
-    double pid, ff;
-
-    double slideRotatedTicks;
-    public static double slideTargetRotatedTicks;
-    final double ticksInDegrees = 700 / 180.0f;
+    private DcMotorEx slideMotor, armMotor;
+    float slidePower, armPower;
+    private CRServo clawServo;
+    float clawPower;
 
     // Slide and rotation of slide code
-    public void viper_slide() {
-        // get slide rotation info
-        slideRotatedTicks = slideRotationMotor.getCurrentPosition();
+    // TODO: implement PID/encoder system on arm to prevent it from "falling"
+    public void arm() {
+        slidePower = (float) (0.6 * gamepad2.left_stick_y);
+        armPower = (float) (0.4 * gamepad2.right_stick_y);
 
-        // PID loop
-        controller.setPID(p, i, d);
-        pid = controller.calculate(slideRotatedTicks, slideTargetRotatedTicks);
-        ff = Math.cos(Math.toRadians(slideTargetRotatedTicks / ticksInDegrees)) * f;
+        slideMotor.setPower(slidePower);
+        armMotor.setPower(armPower);
+    }
 
-        slideRotationPower = (float) pid + (float) ff;
-        slideRotationMotor.setPower(slideRotationPower);
+    // Claw separated from arm because of future PID implementation on arm
+    public void claw() {
+        clawPower = gamepad2.right_trigger - gamepad2.left_trigger;
 
-        telemetry.addData("slideRotationPower", slideRotationMotor.getPower());
-        telemetry.addData("pid", pid);
-        telemetry.addData("f", f);
-        telemetry.addData("slideRotatedTicks", slideRotatedTicks);
-        telemetry.addData("slideTargetRotatedTicks", slideTargetRotatedTicks);
+        clawServo.setPower(clawPower);
     }
 
     // Drive code
     public void drive() {
-        xPower = gamepad1.left_stick_x;
-        yPower = -gamepad1.left_stick_y;
-        yaw = gamepad1.right_stick_x;
+        xPower = (float) (0.7 * gamepad1.left_stick_x);
+        yPower = (float) (0.7 * -gamepad1.left_stick_y);
+        yaw = (float) (0.7 * gamepad1.right_stick_x);
 
         divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
 
@@ -66,9 +55,6 @@ public class MechanumDriveCode extends LinearOpMode {
 
     public void runOpMode() {
         // init
-
-        // define controller
-        controller = new PIDController(p, i, d);
 
         // create multiple telemetries and add to dashboard
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -88,20 +74,19 @@ public class MechanumDriveCode extends LinearOpMode {
         brMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         // Reverse direction of motors
-        frMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        brMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        slideRotationMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
-        slideRotationMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideRotationMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        slideRotationMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
+        clawServo = hardwareMap.get(CRServo.class, "clawServo");
 
         waitForStart();
 
         while (opModeIsActive()) {
             this.drive();
-            this.viper_slide();
+            this.arm();
+            this.claw();
 
             telemetry.update();
         }
