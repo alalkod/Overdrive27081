@@ -22,18 +22,19 @@ public class MechanumDriveCodePID extends LinearOpMode {
     private double clawPower;
 
     // PID control
-    private PIDController controller;
+    private PIDController controller = new PIDController(p,i,d);
 
     public static double p = 0.015, i = 0.02, d = 0.001;
     public static double f = 0;
     private double pid, ff;
 
-    public static int target;
+    public static int target = 0;
 
     private final double ticks_in_degrees = 700 / 180.0;
 
     // Slide and rotation of slide code
     // TODO: implement PID/encoder system on arm to prevent it from "falling"
+
     public void arm() {
         controller.setPID(p, i, d);
 
@@ -42,21 +43,29 @@ public class MechanumDriveCodePID extends LinearOpMode {
         pid = controller.calculate(armPosition, target);
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
 
-        slidePower = 0.6 * gamepad2.left_stick_y;
         armPower = pid + ff;
-//        armPower = 0.4 * gamepad2.right_stick_y;
-
-        telemetry.addData("armPosition", armPosition);
-        telemetry.addData("target", target);
-
-        slideMotor.setPower(slidePower);
+        //armPower = 0.4 * gamepad2.right_stick_y;
+        target = (int) (target + gamepad2.right_stick_y * 3.5);
         armMotor.setPower(armPower);
+
+       telemetry.addData("armPosition", armPosition);
+       telemetry.addData("target", target);
+       telemetry.addData("armPower", armPower);
+    }
+
+    public void slide() {
+        slidePower = 0.6 * gamepad2.left_stick_y;
+        slideMotor.setPower(slidePower);
+        int pos = slideMotor.getCurrentPosition();
+        int posT = slideMotor.getTargetPosition();
+        telemetry.addData("C slide Possition ", pos);
+        telemetry.addData("T slide Position  ", posT);
+        telemetry.update();
     }
 
     // Claw separated from arm because of future PID implementation on arm
     public void claw() {
         clawPower = gamepad2.right_trigger - gamepad2.left_trigger;
-
         clawServo.setPower(clawPower);
     }
 
@@ -110,6 +119,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
             this.drive();
             this.arm();
             this.claw();
+            this.slide();
 
             telemetry.update();
         }
