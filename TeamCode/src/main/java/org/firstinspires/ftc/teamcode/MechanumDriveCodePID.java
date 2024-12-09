@@ -42,15 +42,20 @@ public class MechanumDriveCodePID extends LinearOpMode {
         pid = controller.calculate(armPosition, target);
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
 
-        slidePower = 0.6 * gamepad2.left_stick_y;
         armPower = pid + ff;
 //        armPower = 0.4 * gamepad2.right_stick_y;
+        target = (int) (target + gamepad2.right_stick_y * 3.5);
 
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
 
-        slideMotor.setPower(slidePower);
         armMotor.setPower(armPower);
+    }
+
+    public void slide() {
+        slidePower = 0.6 * gamepad2.left_stick_y;
+
+        slideMotor.setPower(slidePower);
     }
 
     // Claw separated from arm because of future PID implementation on arm
@@ -109,6 +114,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
         while (opModeIsActive()) {
             this.drive();
             this.arm();
+            this.slide();
             this.claw();
 
             telemetry.update();
