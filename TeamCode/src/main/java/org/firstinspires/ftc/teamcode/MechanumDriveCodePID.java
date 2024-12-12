@@ -44,9 +44,8 @@ public class MechanumDriveCodePID extends LinearOpMode {
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
 
         armPower = pid + ff;
-//        armPower = 0.4 * gamepad2.right_stick_y;
 
-        target = (int) (target + gamepad2.right_stick_y * 3.5);
+        target = (int) (target + gamepad2.right_stick_y * 5);
 
         armMotor.setPower(armPower);
 
