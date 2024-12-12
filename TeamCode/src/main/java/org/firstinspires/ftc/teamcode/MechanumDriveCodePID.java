@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -44,12 +45,13 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         armPower = pid + ff;
 //        armPower = 0.4 * gamepad2.right_stick_y;
+
         target = (int) (target + gamepad2.right_stick_y * 3.5);
+
+        armMotor.setPower(armPower);
 
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
-
-        armMotor.setPower(armPower);
     }
 
     public void slide() {
@@ -82,6 +84,8 @@ public class MechanumDriveCodePID extends LinearOpMode {
     public void runOpMode() {
         // init
 
+        controller = new PIDController(p, i, d);
+
         // create multiple telemetries and add to dashboard
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -106,8 +110,6 @@ public class MechanumDriveCodePID extends LinearOpMode {
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
         armMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
         clawServo = hardwareMap.get(CRServo.class, "clawServo");
-
-        controller = new PIDController(p, i, d);
 
         waitForStart();
 
