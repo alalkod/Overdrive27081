@@ -18,6 +18,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
     private double xPower, yPower, yaw, divisor;
     private DcMotorEx slideMotor, armMotor;
     private double slidePower, armPower;
+    private double fineStrafePower;
     private int armPosition;
     private CRServo clawServo;
     private double clawPower;
@@ -49,6 +50,13 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         armMotor.setPower(armPower);
 
+        fineStrafePower = gamepad2.right_stick_y;
+
+        flMotor.setPower(fineStrafePower);
+        frMotor.setPower(-fineStrafePower);
+        blMotor.setPower(-fineStrafePower);
+        brMotor.setPower(fineStrafePower);
+
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
     }
@@ -74,9 +82,9 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
 
-        flMotor.setPower((xPower + yPower + yaw) / divisor);
+        flMotor.setPower((-xPower + yPower + yaw) / divisor);
         frMotor.setPower((-xPower + yPower - yaw) / divisor);
-        blMotor.setPower((-xPower + yPower + yaw) / divisor);
+        blMotor.setPower((xPower + yPower + yaw) / divisor);
         brMotor.setPower((xPower + yPower - yaw) / divisor);
     }
 

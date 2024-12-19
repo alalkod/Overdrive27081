@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Config
-@TeleOp(name="Mechanum Drive Code PID")
+@TeleOp(name="Linear Slide Test Saran")
 public class
 LinearSlideTestSaran extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;

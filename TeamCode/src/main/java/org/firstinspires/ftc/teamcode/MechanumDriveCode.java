@@ -74,7 +74,6 @@ public class MechanumDriveCode extends LinearOpMode {
         blMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         brMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        // Reverse direction of motors
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
