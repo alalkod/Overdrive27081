@@ -30,7 +30,7 @@ LinearSlideTestSaran extends LinearOpMode {
     public static double f = 0;
     private double pid, ff;
 
-    public static int target = 0;
+    public static int target = 200;
 
     private final double ticks_in_degrees = 700 / 180.0;
 
@@ -44,15 +44,20 @@ LinearSlideTestSaran extends LinearOpMode {
         pid = controller.calculate(armPosition, target);
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
 
+        telemetry.addData("p", armPosition);
+        telemetry.addData("i", armPosition);
+        telemetry.addData("d", armPosition);
+        telemetry.addData("target", target);
+
         //armPower = pid + ff;
         armPower = 0.4 * gamepad2.right_stick_y;
-        target = (int) (target + gamepad2.right_stick_y * 3.5);
+        //target = (int) (target + gamepad2.right_stick_y * 3.5);
         armMotor.setPower(armPower);
 
        telemetry.addData("armPosition", armPosition);
-       telemetry.addData("target", target);
        telemetry.addData("armPower", armPower);
     }
+
 
     public void slide() {
             slidePower = 0.6 * gamepad2.left_stick_y;
@@ -60,14 +65,14 @@ LinearSlideTestSaran extends LinearOpMode {
 
             if(gamepad2.a){
                 slideMotor.setTargetPosition(-2514);
-                slideMotor.setPower(2.75);
+                slideMotor.setPower(10);
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
 
             if(gamepad2.x){
                 slideMotor.setTargetPosition(0);
-                slideMotor.setPower(2.75);
+                slideMotor.setPower(10);
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
@@ -75,7 +80,6 @@ LinearSlideTestSaran extends LinearOpMode {
             int posT = slideMotor.getTargetPosition();
             telemetry.addData("C slide Position ", pos);
             telemetry.addData("T slide Position  ", posT);
-            telemetry.update();
 
         //2990
     }
@@ -103,7 +107,7 @@ LinearSlideTestSaran extends LinearOpMode {
         telemetry.addData("fr current pos", frMotor.getCurrentPosition());
         telemetry.addData("bl current pos", blMotor.getCurrentPosition());
         telemetry.addData("br current pos", brMotor.getCurrentPosition());
-        telemetry.update();
+
     }
 
     public void runOpMode() {

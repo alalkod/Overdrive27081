@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -25,7 +26,7 @@ public class MechanumDriveCode extends LinearOpMode {
     // Slide and rotation of slide code
     // TODO: implement PID/encoder system on arm to prevent it from "falling"
     public void arm() {
-        slidePower = (float) (0.6 * gamepad2.left_stick_y);
+        slidePower = (float) (0.6 * gamepad2.left_stick_y*1.25);
         armPower = (float) (0.4 * gamepad2.right_stick_y);
 
         slideMotor.setPower(slidePower);
