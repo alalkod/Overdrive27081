@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
     @Autonomous(name = "AutonBaic", group = "Autonomous")
 //@Disabled
-    public class AutonBasic extends LinearOpMode {
+    public class  AutonBasic extends LinearOpMode {
 
         private DcMotorEx flMotor, frMotor, blMotor, brMotor, slideMotor, armMotor;
         private CRServo clawServo;
@@ -38,10 +38,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
             waitForStart();
             //while (opModeIsActive()) {
                 //move robot 26 inches forward from the parked spot
-                moveRobotLeft(50);
-                moveRobotRight(25);
-                moveRobotForward(12);
-                moveRobotBack(6);
+                moveRobotLeft(30);
+//                moveRobotRight(25);
+//                moveRobotForward(12);
+//                moveRobotBack(6);
                 stopRobot();
            // }
         }
@@ -55,9 +55,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
         public void moveRobotLeft(long inches) {
             //robot at 2.75 speed has to run for 3 millisecond to cover a inch
-            double forward = 0.25;
-            double back = -0.25;
+            double forward = 0.5;
+            double back = -0.5;
             long robotRunTimeInMilliSeconds = inches * 100;
+
             ;
             //set the motor power to 'power'
             flMotor.setPower(forward);
@@ -66,47 +67,47 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
             brMotor.setPower(forward);
             sleep(robotRunTimeInMilliSeconds);
         }
-
-        public void moveRobotRight(long inches) {
-            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
-            double forward = 0.25;
-            double back = -0.25;
-            long robotRunTimeInMilliSeconds = inches * 100;
-            ;
-            //set the motor power to 'power'
-            flMotor.setPower(back);
-            frMotor.setPower(forward);
-            blMotor.setPower(forward);
-            brMotor.setPower(back);
-            sleep(robotRunTimeInMilliSeconds);
-        }
-
-        public void moveRobotForward(long inches) {
-            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
-            double forward = 0.25;
-            double back = -0.25;
-            long robotRunTimeInMilliSeconds = inches * 100;
-            ;
-            //set the motor power to 'power'
-            flMotor.setPower(forward);
-            frMotor.setPower(forward);
-            blMotor.setPower(forward);
-            brMotor.setPower(forward);
-            sleep(robotRunTimeInMilliSeconds);
-        }
-
-        public void moveRobotBack(long inches) {
-            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
-            double forward = 0.25;
-            double back = -0.25;
-            long robotRunTimeInMilliSeconds = inches * 100;
-            ;
-            //set the motor power to 'power'
-            flMotor.setPower(back);
-            frMotor.setPower(back);
-            blMotor.setPower(back);
-            brMotor.setPower(back);
-            sleep(robotRunTimeInMilliSeconds);
-        }
+//
+//        public void moveRobotRight(long inches) {
+//            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
+//            double forward = 0.25;
+//            double back = -0.25;
+//            long robotRunTimeInMilliSeconds = inches * 100;
+//            ;
+//            //set the motor power to 'power'
+//            flMotor.setPower(back);
+//            frMotor.setPower(forward);
+//            blMotor.setPower(forward);
+//            brMotor.setPower(back);
+//            sleep(robotRunTimeInMilliSeconds);
+//        }
+//
+//        public void moveRobotForward(long inches) {
+//            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
+//            double forward = 0.25;
+//            double back = -0.25;
+//            long robotRunTimeInMilliSeconds = inches * 100;
+//            ;
+//            //set the motor power to 'power'
+//            flMotor.setPower(forward);
+//            frMotor.setPower(forward);
+//            blMotor.setPower(forward);
+//            brMotor.setPower(forward);
+//            sleep(robotRunTimeInMilliSeconds);
+//        }
+//
+//        public void moveRobotBack(long inches) {
+//            //robot at 2.75 speed has to run for 3 millisecond to cover a inch
+//            double forward = 0.25;
+//            double back = -0.25;
+//            long robotRunTimeInMilliSeconds = inches * 100;
+//            ;
+//            //set the motor power to 'power'
+//            flMotor.setPower(back);
+//            frMotor.setPower(back);
+//            blMotor.setPower(back);
+//            brMotor.setPower(back);
+//            sleep(robotRunTimeInMilliSeconds);
+//        }
 
     }
