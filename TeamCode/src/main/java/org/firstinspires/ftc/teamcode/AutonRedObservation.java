@@ -6,11 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
-
-
-    @Autonomous(name = "AutonRedObservation", group = "Autonomous")
+@Autonomous(name = "AutonRedObservation", group = "Autonomous")
 //@Disabled
     public class AutonRedObservation extends LinearOpMode {
 
@@ -34,8 +33,16 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
             blMotor = hardwareMap.get(DcMotorEx.class, "bl");
             brMotor = hardwareMap.get(DcMotorEx.class, "br");
 
+            flMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            frMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            blMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            brMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+            flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
             waitForStart();
-            moveRobotLeft(30);
+            moveRobotRight(30);
             stopRobot();
         }
 
@@ -74,10 +81,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
             double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
 
             //set the motor power to 'power'
-            flMotor.setPower(forward);
+            flMotor.setPower(back);
             frMotor.setPower(forward);
             blMotor.setPower(forward);
-            brMotor.setPower(forward);
+            brMotor.setPower(back);
             sleep((long) robotRunTimeInMilliSeconds);
         }
 
@@ -86,10 +93,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
             double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
             ;
             //set the motor power to 'power'
-            flMotor.setPower(back);
+            flMotor.setPower(forward);
             frMotor.setPower(back);
             blMotor.setPower(back);
-            brMotor.setPower(back);
+            brMotor.setPower(forward);
             sleep((long) robotRunTimeInMilliSeconds);
         }
 
