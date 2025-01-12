@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -6,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -14,13 +16,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class MechanumDriveCodePID extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;
     private double xPower, yPower, yaw, divisor;
-   private DcMotorEx slideMotor, armMotor;
+    private DcMotorEx slideMotor, armMotor;
     private double slidePower, armPower;
     private double fineStrafePower;
     private int armPosition;
-    private CRServo intakeServoLeft,intakeServoRight,intakeServoClaw;
-
-    private double intakePower;
+    private CRServo clawServo;
+    private double clawPower;
 
     // PID control
     private PIDController controller;
@@ -38,7 +39,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
     public void arm() {
         controller.setPID(p, i, d);
 
-//        armPosition = armMotor.getCurrentPosition();
+        armPosition = armMotor.getCurrentPosition();
 
         pid = controller.calculate(armPosition, target);
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
@@ -46,11 +47,10 @@ public class MechanumDriveCodePID extends LinearOpMode {
         armPower = pid + ff;
 
         target = (int) (target + gamepad2.right_stick_y * 5);
-        armMotor.setPower(gamepad2.left_stick_y);
 
-//        armMotor.setPower(armPower);
+        armMotor.setPower(armPower);
 
-        fineStrafePower = gamepad1.right_stick_y;
+        fineStrafePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
         flMotor.setPower(fineStrafePower);
         frMotor.setPower(-fineStrafePower);
@@ -64,15 +64,14 @@ public class MechanumDriveCodePID extends LinearOpMode {
     public void slide() {
         slidePower = 0.6 * gamepad2.left_stick_y;
 
-       slideMotor.setPower(slidePower);
+        slideMotor.setPower(slidePower);
     }
 
-     //Claw separated from arm because of future PID implementation on arm
+    // Claw separated from arm because of future PID implementation on arm
     public void intake() {
-        intakePower = 0.5;
-          if (gamepad2.a) {
-              intakeServoLeft.setPower(intakePower);
-          }
+        clawPower = gamepad2.right_trigger - gamepad2.left_trigger;
+
+        clawServo.setPower(clawPower);
     }
 
     // Drive code
@@ -83,10 +82,10 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
 
-        flMotor.setPower((-xPower + yPower + yaw) / divisor*(4));
-        frMotor.setPower((-xPower + yPower - yaw) / divisor*(4));
-        blMotor.setPower((xPower + yPower + yaw) / divisor*(4));
-        brMotor.setPower((xPower + yPower - yaw) / divisor*(4));
+        flMotor.setPower((-xPower + yPower + yaw) / divisor);
+        frMotor.setPower((-xPower + yPower - yaw) / divisor);
+        blMotor.setPower((xPower + yPower + yaw) / divisor);
+        brMotor.setPower((xPower + yPower - yaw) / divisor);
     }
 
     public void runOpMode() {
@@ -110,17 +109,14 @@ public class MechanumDriveCodePID extends LinearOpMode {
         frMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         blMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         brMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        armMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
-        intakeServoLeft = hardwareMap.get(CRServo.class, "intakeServoLeft");
-        intakeServoRight = hardwareMap.get(CRServo.class, "intakeServoRight");
-        intakeServoClaw = hardwareMap.get(CRServo.class, "intakeServoClaw");
 
         // Reverse direction of motors
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
+        slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
+        armMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
+        clawServo = hardwareMap.get(CRServo.class, "clawServo");
 
         waitForStart();
 
