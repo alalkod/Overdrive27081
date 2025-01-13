@@ -7,7 +7,6 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -20,8 +19,11 @@ public class MechanumDriveCodePID extends LinearOpMode {
     private double slidePower, armPower;
     private double fineStrafePower;
     private int armPosition;
-    private CRServo clawServo;
-    private double clawPower;
+    private CRServo sampleIntakeServo;
+    private double sampleIntakePower;
+    private CRServo leftSpecimenIntakeServo;
+    private CRServo rightSpecimenIntakeServo;
+    private double specimenIntakePower;
 
     // PID control
     private PIDController controller;
@@ -50,12 +52,12 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         armMotor.setPower(armPower);
 
-        fineStrafePower = gamepad2.right_trigger - gamepad2.left_trigger;
-
-        flMotor.setPower(fineStrafePower);
-        frMotor.setPower(-fineStrafePower);
-        blMotor.setPower(-fineStrafePower);
-        brMotor.setPower(fineStrafePower);
+//        fineStrafePower = gamepad2.right_trigger - gamepad2.left_trigger;
+//
+//        flMotor.setPower(fineStrafePower);
+//        frMotor.setPower(-fineStrafePower);
+//        blMotor.setPower(-fineStrafePower);
+//        brMotor.setPower(fineStrafePower);
 
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
@@ -67,11 +69,18 @@ public class MechanumDriveCodePID extends LinearOpMode {
         slideMotor.setPower(slidePower);
     }
 
-    // Claw separated from arm because of future PID implementation on arm
-    public void intake() {
-        clawPower = gamepad2.right_trigger - gamepad2.left_trigger;
+    // Intakes separated from arm because of future PID implementation on arm
+    public void sampleIntake() {
+        sampleIntakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
-        clawServo.setPower(clawPower);
+        sampleIntakeServo.setPower(sampleIntakePower);
+    }
+
+    public void specimenIntake() {
+        specimenIntakePower = gamepad1.right_trigger - gamepad1.left_trigger;
+
+        leftSpecimenIntakeServo.setPower(specimenIntakePower);
+        rightSpecimenIntakeServo.setPower(-specimenIntakePower);
     }
 
     // Drive code
@@ -82,9 +91,9 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
 
-        flMotor.setPower((-xPower + yPower + yaw) / divisor);
+        flMotor.setPower((xPower + yPower + yaw) / divisor);
         frMotor.setPower((-xPower + yPower - yaw) / divisor);
-        blMotor.setPower((xPower + yPower + yaw) / divisor);
+        blMotor.setPower((-xPower + yPower + yaw) / divisor);
         brMotor.setPower((xPower + yPower - yaw) / divisor);
     }
 
@@ -114,9 +123,11 @@ public class MechanumDriveCodePID extends LinearOpMode {
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        armMotor = hardwareMap.get(DcMotorEx.class, "armMotor");
-        clawServo = hardwareMap.get(CRServo.class, "clawServo");
+        slideMotor = hardwareMap.get(DcMotorEx.class, "slide");
+        armMotor = hardwareMap.get(DcMotorEx.class, "arm");
+        sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
+        leftSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoLeft");
+        rightSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoRight");
 
         waitForStart();
 
@@ -124,7 +135,8 @@ public class MechanumDriveCodePID extends LinearOpMode {
             this.drive();
             this.arm();
             this.slide();
-            this.intake();
+            this.sampleIntake();
+            this.specimenIntake();
 
             telemetry.update();
         }
