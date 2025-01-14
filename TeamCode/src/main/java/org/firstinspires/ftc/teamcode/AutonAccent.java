@@ -44,23 +44,29 @@ public class AutonAccent extends LinearOpMode {
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
+        //go to block pushing position
         moveRobotLeft(4);
-        moveRobotForward(55);
-        moveRobotLeft(16);
-        moveRobotBack(52);
+        moveRobotForward(50);
+
+        //move three blocks
+        moveRobotLeft(15);
+        moveRobotBack(47);
         moveRobotForward(5);
         moveRobotRight(14);
         moveRobotBack(12);
         moveRobotLeft(20);
         moveRobotRight(5);
-        moveRobotForward(5);
-        moveRobotLeft(5);
-        moveRobotForward(45);
+        moveRobotForward(50);
         moveRobotLeft(14);
         moveRobotBack(53);
-        moveRobotForward(24);
-        moveRobotRight( 135);
-        moveRobotBack(15);
+        moveRobotForward(50);
+        moveRobotLeft(10);
+        moveRobotBack(53);
+
+        //goto the parking in observation
+        moveRobotForward(9);
+        moveRobotRight( 141);
+        moveRobotBack(13);
         stopRobot();
     }
     public void stopRobot() {

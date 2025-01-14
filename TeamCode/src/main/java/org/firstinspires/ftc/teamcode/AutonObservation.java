@@ -37,71 +37,30 @@ public class AutonObservation extends LinearOpMode {
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
+        //goto the block pushing position
         moveRobotForward(23);
+        moveRobotLeft(68);
+        moveRobotForward(27);
 
-        telemetry.addData("Move Forward 23 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotLeft(69);
-
-        telemetry.addData("Move Left 46 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotForward(23);
-
-        telemetry.addData("Move Forward 23 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotLeft(13);
-
-        telemetry.addData("Move Left 10 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotBack(55);
-
-        telemetry.addData("Move Back 47 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotForward(10);
-
-        moveRobotRight(10);
-
-        moveRobotBack(13);
-
-        moveRobotLeft(10);
-
-        moveRobotRight(10);
-
-        moveRobotForward(45);
-
-        telemetry.addData("Move Forward 47 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotLeft(21);
-
-        telemetry.addData("Move Left 10 Inches", "Moving");
-        telemetry.update();
-
+        //move three blocks
+        moveRobotLeft(15);
         moveRobotBack(47);
+        moveRobotForward(5);
+        moveRobotRight(14);
+        moveRobotBack(12);
+        moveRobotLeft(20);
+        moveRobotRight(5);
+        moveRobotForward(50);
+        moveRobotLeft(14);
+        moveRobotBack(53);
+        moveRobotForward(50);
+        moveRobotLeft(10);
+        moveRobotBack(53);
 
-        telemetry.addData("Move Back 47 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotForward(10);
-
-        telemetry.addData("Move Forward 47 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotRight(10);
-
-        telemetry.addData("Move Right 20 Inches", "Moving");
-        telemetry.update();
-
-        moveRobotForward(15);
-        moveRobotRight(115);
-
-        moveRobotBack(17);
-
+        //goto the parking in observation
+        moveRobotForward(9);
+        moveRobotRight( 141);
+        moveRobotBack(13);
         stopRobot();
 
         telemetry.addData("Stop Robot", "Stopped");
