@@ -7,8 +7,10 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 @TeleOp(name="Mechanum Drive Code PID")
@@ -17,13 +19,10 @@ public class MechanumDriveCodePID extends LinearOpMode {
     private double xPower, yPower, yaw, divisor;
     private DcMotorEx slideMotor, armMotor;
     private double slidePower, armPower;
-    private double fineStrafePower;
     private int armPosition;
     private CRServo sampleIntakeServo;
+    private Servo leftSpecimenIntakeServo, rightSpecimenIntakeServo;
     private double sampleIntakePower;
-    private CRServo leftSpecimenIntakeServo;
-    private CRServo rightSpecimenIntakeServo;
-    private double specimenIntakePower;
 
     // PID control
     private PIDController controller;
@@ -32,13 +31,15 @@ public class MechanumDriveCodePID extends LinearOpMode {
     public static double f = 0;
     private double pid, ff;
 
-    public static int target;
+    public static double target;
 
     private final double ticks_in_degrees = 700 / 180.0;
 
     // Slide and rotation of slide code
     // TODO: implement PID/encoder system on arm to prevent it from "falling"
+
     public void arm() {
+
         controller.setPID(p, i, d);
 
         armPosition = armMotor.getCurrentPosition();
@@ -47,20 +48,14 @@ public class MechanumDriveCodePID extends LinearOpMode {
         ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
 
         armPower = pid + ff;
-
-        target = (int) (target + gamepad2.right_stick_y * 5);
+        target +=  gamepad2.right_stick_y;
 
         armMotor.setPower(armPower);
 
-//        fineStrafePower = gamepad2.right_trigger - gamepad2.left_trigger;
-//
-//        flMotor.setPower(fineStrafePower);
-//        frMotor.setPower(-fineStrafePower);
-//        blMotor.setPower(-fineStrafePower);
-//        brMotor.setPower(fineStrafePower);
-
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
+        telemetry.addData("pid", pid);
+        telemetry.addData("armPower", armPower);
     }
 
     public void slide() {
@@ -77,11 +72,18 @@ public class MechanumDriveCodePID extends LinearOpMode {
     }
 
     public void specimenIntake() {
-        specimenIntakePower = gamepad1.right_trigger - gamepad1.left_trigger;
-
-        leftSpecimenIntakeServo.setPower(specimenIntakePower);
-        rightSpecimenIntakeServo.setPower(-specimenIntakePower);
+        if(gamepad1.a) {
+            rightSpecimenIntakeServo.setPosition(1);
+            leftSpecimenIntakeServo.setPosition(0);
+        }
+        if(gamepad1.b) {
+            rightSpecimenIntakeServo.setPosition(0);
+            leftSpecimenIntakeServo.setPosition(1
+            );
+        }
     }
+
+
 
     // Drive code
     public void drive() {
@@ -96,6 +98,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
         blMotor.setPower((-xPower + yPower + yaw) / divisor);
         brMotor.setPower((xPower + yPower - yaw) / divisor);
     }
+
 
     public void runOpMode() {
         // init
@@ -126,8 +129,10 @@ public class MechanumDriveCodePID extends LinearOpMode {
         slideMotor = hardwareMap.get(DcMotorEx.class, "slide");
         armMotor = hardwareMap.get(DcMotorEx.class, "arm");
         sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
-        leftSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoLeft");
-        rightSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoRight");
+        leftSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoLeft");
+        rightSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoRight");
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
