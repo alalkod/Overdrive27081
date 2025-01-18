@@ -1,60 +1,40 @@
+// Not working!
+
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Config
-@TeleOp(name="Mechanum Drive Code PID")
-public class MechanumDriveCodePID extends LinearOpMode {
+@TeleOp(name="Mechanum Drive Code")
+public class MechanumDriveCode extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;
     private double xPower, yPower, yaw, divisor;
     private DcMotorEx slideMotor, armMotor;
     private double slidePower, armPower;
-    private int armPosition;
-//    private CRServo clawServo;
+    private double fineStrafePower;
     private CRServo sampleIntakeServo;
-    private Servo leftSpecimenIntakeServo, rightSpecimenIntakeServo;
-    private double leftSpecimenIntakeServoPosition, rightSpecimenIntakeServoPosition;
-//    private double clawPower;
     private double sampleIntakePower;
-
-    // PID control
-    private PIDController controller;
-
-    public static double p = -0.005, i = -0.0001, d = -0.00001;
-    public static double f = 0.015;
-    private double pid, ff;
-
-    public static int target;
-
-    private final double ticks_in_degrees = 700 / 180.0;
+    private CRServo leftSpecimenIntakeServo;
+    private CRServo rightSpecimenIntakeServo;
+    private double specimenIntakePower;
 
     // Slide and rotation of slide code
     // TODO: implement PID/encoder system on arm to prevent it from "falling"
     public void arm() {
-        controller.setPID(p, i, d);
+        armPower = gamepad2.right_stick_y;
+        armMotor.setPower(0.6 * armPower);
 
-        armPosition = armMotor.getCurrentPosition();
-
-        pid = controller.calculate(armPosition, target);
-        ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
-
-        armPower = pid + ff;
-
-        target = (int) (target + gamepad2.right_stick_y * 5);
-
-        armMotor.setPower(armPower);
-
-        telemetry.addData("armPosition", armPosition);
-        telemetry.addData("target", target);
+//        fineStrafePower = gamepad2.right_trigger - gamepad2.left_trigger;
+//
+//        flMotor.setPower(fineStrafePower);
+//        frMotor.setPower(-fineStrafePower);
+//        blMotor.setPower(-fineStrafePower);
+//        brMotor.setPower(fineStrafePower);
     }
 
     public void slide() {
@@ -63,6 +43,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
         slideMotor.setPower(slidePower);
     }
 
+    // Intakes separated from arm because of future PID implementation on arm
     public void sampleIntake() {
         sampleIntakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
@@ -70,20 +51,10 @@ public class MechanumDriveCodePID extends LinearOpMode {
     }
 
     public void specimenIntake() {
-        if (gamepad2.a) {
-            leftSpecimenIntakeServo.setPosition(0);
-            rightSpecimenIntakeServo.setPosition(1);
-        }
-        if (gamepad2.b) {
-            leftSpecimenIntakeServo.setPosition(1);
-            rightSpecimenIntakeServo.setPosition(0);
-        }
+        specimenIntakePower = gamepad1.right_trigger - gamepad1.left_trigger;
 
-        leftSpecimenIntakeServoPosition = leftSpecimenIntakeServo.getPosition();
-        rightSpecimenIntakeServoPosition = rightSpecimenIntakeServo.getPosition();
-
-        telemetry.addData("leftSpecimenIntakeServoPosition", leftSpecimenIntakeServoPosition);
-        telemetry.addData("rightSpecimenIntakeServoPosition", rightSpecimenIntakeServoPosition);
+        leftSpecimenIntakeServo.setPower(specimenIntakePower);
+        rightSpecimenIntakeServo.setPower(-specimenIntakePower);
     }
 
     // Drive code
@@ -102,8 +73,6 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
     public void runOpMode() {
         // init
-
-        controller = new PIDController(p, i, d);
 
         // create multiple telemetries and add to dashboard
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -128,11 +97,9 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slide");
         armMotor = hardwareMap.get(DcMotorEx.class, "arm");
-
-        leftSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoLeft");
-        rightSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoRight");
-
         sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
+        leftSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoLeft");
+        rightSpecimenIntakeServo = hardwareMap.get(CRServo.class, "intakeServoRight");
 
         waitForStart();
 
@@ -140,8 +107,8 @@ public class MechanumDriveCodePID extends LinearOpMode {
             this.drive();
             this.arm();
             this.slide();
-            this.specimenIntake();
             this.sampleIntake();
+            this.specimenIntake();
 
             telemetry.update();
         }
