@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
-@Autonomous(name = "AutonRedAccentZone", group = "Autonomous")
+@Autonomous(name = "AutonObservation", group = "Autonomous")
 //@Disabled
-public class AutonRedAccentZone extends LinearOpMode {
+public class AutonObservation extends LinearOpMode {
 
-    private DcMotorEx flMotor, frMotor, blMotor, brMotor, slideMotor, armMotor;
+    private DcMotorEx flMotor, frMotor, blMotor, brMotor;
     private CRServo clawServo;
     double forward = 0.5;
     double back = -0.5;
@@ -27,31 +27,44 @@ public class AutonRedAccentZone extends LinearOpMode {
         telemetry.addData("Status", "Waiting");
         telemetry.update();
 
-
         // Initialization
         flMotor = hardwareMap.get(DcMotorEx.class, "fl");
-        frMotor =
-                hardwareMap.get(DcMotorEx.class, "fr");
+        frMotor = hardwareMap.get(DcMotorEx.class, "fr");
         blMotor = hardwareMap.get(DcMotorEx.class, "bl");
         brMotor = hardwareMap.get(DcMotorEx.class, "br");
 
-//        flMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-//        frMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-//        blMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-//        brMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-
-        // Reverse direction of motors
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         blMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
-        moveRobotForward(40);
-        moveRobotBack(20);
-        moveRobotForward(2);
-        turnRobotRight();
+        //goto the block pushing position
+        moveRobotForward(23);
+        moveRobotLeft(68);
+        moveRobotForward(27);
+
+        //move three blocks
+        moveRobotLeft(15);
+        moveRobotBack(47);
+        moveRobotForward(5);
+        moveRobotRight(14);
+        moveRobotBack(12);
+        moveRobotLeft(20);
+        moveRobotRight(5);
+        moveRobotForward(50);
+        moveRobotLeft(14);
+        moveRobotBack(53);
+        moveRobotForward(50);
+        moveRobotLeft(10);
+        moveRobotBack(53);
+
+        //goto the parking in observation
+        moveRobotForward(9);
+        moveRobotRight( 141);
+        moveRobotBack(13);
         stopRobot();
 
-
+        telemetry.addData("Stop Robot", "Stopped");
+        telemetry.update();
     }
 
     public void stopRobot() {
@@ -61,20 +74,7 @@ public class AutonRedAccentZone extends LinearOpMode {
         brMotor.setPower(0);
     }
 
-
-    public void moveRobotLeft(long inches) {
-        double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
-
-        //set the motor power to 'power'
-        flMotor.setPower(back);
-        frMotor.setPower(forward);
-        blMotor.setPower(forward);
-        brMotor.setPower(back);
-        sleep((long) robotRunTimeInMilliSeconds);
-    }
-
     public void moveRobotRight(long inches) {
-        //robot at 2.75 speed has to run for 3 millisecond to cover a inch
         double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
 
         //set the motor power to 'power'
@@ -85,17 +85,21 @@ public class AutonRedAccentZone extends LinearOpMode {
         sleep((long) robotRunTimeInMilliSeconds);
     }
 
-    public void turnRobotRight(){
-        double robotRunTimeInMilliSeconds = 3000;
-        flMotor.setPower(forward);
-        frMotor.setPower(back);
+    public void moveRobotLeft(long inches) {
+        //robot at 2.75 speed has to run for 3 millisecond to cover a inch
+        double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
+
+        //set the motor power to 'power'
+        flMotor.setPower(back);
+        frMotor.setPower(forward);
         blMotor.setPower(forward);
         brMotor.setPower(back);
+        sleep((long) robotRunTimeInMilliSeconds);
     }
+
     public void moveRobotForward(long inches) {
         //robot at 2.75 speed has to run for 3 millisecond to cover a inch
         double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
-        telemetry.addData("forward value", forward);
 
         //set the motor power to 'power'
         flMotor.setPower(forward);
@@ -116,15 +120,5 @@ public class AutonRedAccentZone extends LinearOpMode {
         brMotor.setPower(back);
         sleep((long) robotRunTimeInMilliSeconds);
     }
-    public void turnRobotRight(long inches) {
-        //robot at 2.75 speed has to run for 3 millisecond to cover a inch
-        double robotRunTimeInMilliSeconds = inches * timeToMoveOneInch;
 
-        //set the motor power to 'power'
-        flMotor.setPower(forward);
-        frMotor.setPower(forward);
-        blMotor.setPower(back);
-        brMotor.setPower(back);
-        sleep((long) robotRunTimeInMilliSeconds);
-    }
 }
