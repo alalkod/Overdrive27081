@@ -16,58 +16,42 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="Mechanum Drive Code PID")
 public class MechanumDriveCodePID extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;
-    private double xPower, yPower, yaw, divisor;
     private DcMotorEx slideMotor, armMotor;
-    private double slidePower, armPower;
-    private int armPosition;
     private CRServo sampleIntakeServo;
     private Servo leftSpecimenIntakeServo, rightSpecimenIntakeServo;
-    private double sampleIntakePower;
-
-    // PID control
-    private PIDController controller;
 
     public static double p = 0.015, i = 0.02, d = 0.001;
     public static double f = 0;
-    private double pid, ff;
-
     public static double target;
-
-    private final double ticks_in_degrees = 700 / 180.0;
 
     // Slide and rotation of slide code
     // TODO: implement PID/encoder system on arm to prevent it from "falling"
-
     public void arm() {
-
+        // PID control
+        PIDController controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
+        int armPosition = armMotor.getCurrentPosition();
+        double pid = controller.calculate(armPosition, target);
+        double ticks_in_degrees = 700 / 180.0;
+        double ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
+        double armPower = pid + ff;
 
-        armPosition = armMotor.getCurrentPosition();
-
-        pid = controller.calculate(armPosition, target);
-        ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
-
-        armPower = pid + ff;
         target +=  gamepad2.right_stick_y;
-
         armMotor.setPower(armPower);
 
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
         telemetry.addData("pid", pid);
-        telemetry.addData("armPower", armPower);
     }
 
     public void slide() {
-        slidePower = 0.6 * gamepad2.left_stick_y;
-
+        double slidePower = 0.6 * gamepad2.left_stick_y;
         slideMotor.setPower(slidePower);
     }
 
     // Intakes separated from arm because of future PID implementation on arm
     public void sampleIntake() {
-        sampleIntakePower = gamepad2.right_trigger - gamepad2.left_trigger;
-
+        double sampleIntakePower = gamepad2.right_trigger - gamepad2.left_trigger;
         sampleIntakeServo.setPower(sampleIntakePower);
     }
 
@@ -76,22 +60,25 @@ public class MechanumDriveCodePID extends LinearOpMode {
             rightSpecimenIntakeServo.setPosition(1);
             leftSpecimenIntakeServo.setPosition(0);
         }
+
         if(gamepad1.b) {
             rightSpecimenIntakeServo.setPosition(0);
-            leftSpecimenIntakeServo.setPosition(1
-            );
+            leftSpecimenIntakeServo.setPosition(1);
+
         }
+        double leftSpecimenIntakeServoPosition = leftSpecimenIntakeServo.getPosition();
+        double rightSpecimenIntakeServoPosition = rightSpecimenIntakeServo.getPosition();
+        telemetry.addData("leftSpecimenIntakeServoPosition", leftSpecimenIntakeServoPosition);
+        telemetry.addData("rightSpecimenIntakeServoPosition", rightSpecimenIntakeServoPosition);
     }
-
-
 
     // Drive code
     public void drive() {
-        xPower = 0.7 * gamepad1.left_stick_x;
-        yPower = 0.7 * -gamepad1.left_stick_y;
-        yaw = 0.7 * gamepad1.right_stick_x;
+        double xPower = 0.7 * gamepad1.left_stick_x;
+        double yPower = 0.7 * -gamepad1.left_stick_y;
+        double yaw = 0.7 * gamepad1.right_stick_x;
 
-        divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
+        double divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
 
         flMotor.setPower((xPower + yPower + yaw) / divisor);
         frMotor.setPower((-xPower + yPower - yaw) / divisor);
@@ -99,18 +86,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
         brMotor.setPower((xPower + yPower - yaw) / divisor);
     }
 
-
-    public void runOpMode() {
-        // init
-
-        controller = new PIDController(p, i, d);
-
-        // create multiple telemetries and add to dashboard
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        telemetry.addData("Status", "Waiting");
-        telemetry.update();
-
+    public void initialization() {
         // Initialization
         flMotor = hardwareMap.get(DcMotorEx.class, "fl");
         frMotor = hardwareMap.get(DcMotorEx.class, "fr");
@@ -128,20 +104,32 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slide");
         armMotor = hardwareMap.get(DcMotorEx.class, "arm");
-        sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
-        leftSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoLeft");
-        rightSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoRight");
+
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        leftSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoLeft");
+        rightSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoRight");
+
+        sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
+    }
+
+    public void runOpMode() {
+        // init
+        initialization();
+
+        // create multiple telemetries and add to dashboard
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        telemetry.addData("Status", "Waiting");
+        telemetry.update();
         waitForStart();
 
         while (opModeIsActive()) {
             this.drive();
             this.arm();
             this.slide();
-            this.sampleIntake();
             this.specimenIntake();
+            this.sampleIntake();
 
             telemetry.update();
         }
