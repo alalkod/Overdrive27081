@@ -10,22 +10,22 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 @TeleOp(name="Mechanum Drive Code PID")
 public class MechanumDriveCodePID extends LinearOpMode {
     private DcMotorEx flMotor, frMotor, blMotor, brMotor;
-    private DcMotorEx slideMotor, armMotor;
+    private DcMotorEx slideMotor, armMotor, linearAccelerator;
     private CRServo sampleIntakeServo;
     private Servo leftSpecimenIntakeServo, rightSpecimenIntakeServo;
 
-    public static double p = 0.015, i = 0.02, d = 0.001;
-    public static double f = 0;
-    public static double target;
+    public static double p = 0.003, i = 0.5, d = 1.5;
+    public static double f = 0.001;
+    public static double target = 0.0;
 
     // Slide and rotation of slide code
-    // TODO: implement PID/encoder system on arm to prevent it from "falling"
     public void arm() {
         // PID control
         PIDController controller = new PIDController(p, i, d);
@@ -34,18 +34,38 @@ public class MechanumDriveCodePID extends LinearOpMode {
         double pid = controller.calculate(armPosition, target);
         double ticks_in_degrees = 700 / 180.0;
         double ff = Math.cos(Math.toRadians(target / ticks_in_degrees)) * f;
+
         double armPower = pid + ff;
 
-        target +=  gamepad2.right_stick_y;
+        target = target + gamepad2.right_stick_y * 7;
         armMotor.setPower(armPower);
 
         telemetry.addData("armPosition", armPosition);
         telemetry.addData("target", target);
-        telemetry.addData("pid", pid);
+        telemetry.addData("pid", armPower);
+    }
+
+    public void armWithoutPID() {
+        double ticks_in_degrees = 700 / 180.0;
+        double currentPosition = armMotor.getCurrentPosition();
+        double ff = Math.cos(Math.toRadians(currentPosition / ticks_in_degrees)) * f;
+
+        double controllerPower = gamepad2.right_stick_y;
+
+        if(controllerPower != 0) {
+            armMotor.setPower(controllerPower + ff);
+        } else {
+            armMotor.setPower(ff);
+        }
+
+        telemetry.addData("controller power", controllerPower);
+        telemetry.addData("feedforward", ff);
+        telemetry.addData("arm Position", currentPosition);
+
     }
 
     public void slide() {
-        double slidePower = 0.6 * gamepad2.left_stick_y;
+        double slidePower = 0.6 * -gamepad2.left_stick_y;
         slideMotor.setPower(slidePower);
     }
 
@@ -72,18 +92,37 @@ public class MechanumDriveCodePID extends LinearOpMode {
         telemetry.addData("rightSpecimenIntakeServoPosition", rightSpecimenIntakeServoPosition);
     }
 
+    public void linearAccelerator() {
+        double acceleratorPower = gamepad1.right_trigger - gamepad1.left_trigger;
+        linearAccelerator.setPower(acceleratorPower);
+    }
+
+
     // Drive code
     public void drive() {
+        //get joystick values
         double xPower = 0.7 * gamepad1.left_stick_x;
         double yPower = 0.7 * -gamepad1.left_stick_y;
         double yaw = 0.7 * gamepad1.right_stick_x;
 
-        double divisor = Math.max(Math.abs(xPower) + Math.abs(yPower) + Math.abs(yaw), 1);
+        //calculate powers
+        double flPower = xPower + yPower + yaw;
+        double frPower = -xPower + yPower - yaw;
+        double blPower = -xPower + yPower + yaw;
+        double brPower = xPower + yPower - yaw;
 
-        flMotor.setPower((xPower + yPower + yaw) / divisor);
-        frMotor.setPower((-xPower + yPower - yaw) / divisor);
-        blMotor.setPower((-xPower + yPower + yaw) / divisor);
-        brMotor.setPower((xPower + yPower - yaw) / divisor);
+        double maxPower = Math.max(Math.max(Math.abs(flPower), Math.abs(frPower)), Math.max(Math.abs(blPower), Math.abs(brPower)));
+        if(maxPower > 1.0) {
+            flPower /= maxPower;
+            blPower /= maxPower;
+            frPower /= maxPower;
+            brPower /= maxPower;
+        }
+
+        flMotor.setPower(flPower);
+        frMotor.setPower(frPower);
+        blMotor.setPower(blPower);
+        brMotor.setPower(brPower);
     }
 
     public void initialization() {
@@ -112,6 +151,8 @@ public class MechanumDriveCodePID extends LinearOpMode {
         rightSpecimenIntakeServo = hardwareMap.get(Servo.class, "intakeServoRight");
 
         sampleIntakeServo = hardwareMap.get(CRServo.class, "intakeServoClaw");
+
+        linearAccelerator = hardwareMap.get(DcMotorEx.class, "acc");
     }
 
     public void runOpMode() {
@@ -130,7 +171,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
             this.slide();
             this.specimenIntake();
             this.sampleIntake();
-
+            this.linearAccelerator();
             telemetry.update();
         }
     }
