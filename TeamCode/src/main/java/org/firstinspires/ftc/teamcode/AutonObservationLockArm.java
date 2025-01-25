@@ -14,8 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 //@Disabled
 @Config
 public class AutonObservationLockArm extends LinearOpMode {
-    private DcMotorEx flMotor, frMotor, blMotor, brMotor;
-    private DcMotorEx armMotor;
+    private DcMotorEx flMotor, frMotor, blMotor, brMotor,armMotor;
 
     double forward = 0.5;
     double back = -0.5;
