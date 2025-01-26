@@ -37,7 +37,7 @@ public class MechanumDriveCodePID extends LinearOpMode {
 
         double armPower = pid + ff;
 
-        target = target + gamepad2.right_stick_y * 7;
+        target = target + gamepad2.right_stick_y * 5;
         armMotor.setPower(armPower);
 
         telemetry.addData("armPosition", armPosition);
