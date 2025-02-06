@@ -55,6 +55,7 @@ public class AutonAccentParkHang extends LinearOpMode {
         armMotor = hardwareMap.get(DcMotorEx.class, "arm");
         slideMotor = hardwareMap.get(DcMotorEx.class, "slide");
 
+
         waitForStart();
 
         Runnable lockArm = () -> {
@@ -94,9 +95,9 @@ public class AutonAccentParkHang extends LinearOpMode {
 
         //goto the parking
         moveRobotForward(56);
-        turnRobotRight(90);
+        turnRobotRight(110);
         moveRobotForward(25);
-        stopRobot();
+        stopRobot(0);
         //wait for the armlock thread to complete
        try {
            lockArmThread.join();
@@ -105,14 +106,15 @@ public class AutonAccentParkHang extends LinearOpMode {
        }
         //raise the arm and move the slider
         moveArmDown(145);
-        moveSliderOut(35);
+        moveSliderOut(45);
 
     }
-    public void stopRobot() {
+    public void stopRobot(long sleepAfterStop) {
         flMotor.setPower(0);
         frMotor.setPower(0);
         blMotor.setPower(0);
         brMotor.setPower(0);
+        sleep(sleepAfterStop);
     }
 
     public void moveRobotLeft(long inches) {
