@@ -82,10 +82,12 @@ public class AutonAccentParkHang extends LinearOpMode {
         moveRobotBack(47);
         moveRobotForward(5);
         moveRobotRight(14);
-        moveRobotBack(11);
+        stopRobot(250);
+        moveRobotBack(9);
         moveRobotLeft(20);
         moveRobotRight(5);
         moveRobotForward(51);
+        stopRobot(250);
         moveRobotLeft(14);
         moveRobotBack(53);
         moveRobotForward(51);
@@ -96,7 +98,7 @@ public class AutonAccentParkHang extends LinearOpMode {
         //goto the parking
         moveRobotForward(56);
         turnRobotRight(110);
-        moveRobotForward(25);
+        moveRobotForward(23);
         stopRobot(0);
         //wait for the armlock thread to complete
        try {
@@ -105,7 +107,7 @@ public class AutonAccentParkHang extends LinearOpMode {
            throw new RuntimeException(e);
        }
         //raise the arm and move the slider
-        moveArmDown(155);
+        moveArmDown(160);
         moveSliderOut(45);
 
     }

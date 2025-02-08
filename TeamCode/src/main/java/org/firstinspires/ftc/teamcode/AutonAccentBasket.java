@@ -91,7 +91,7 @@ public class AutonAccentBasket extends LinearOpMode {
         lockArmThread.start();
 
         // go to block pushing position
-        moveRobotLeft(50);
+        moveRobotLeft(41);
         moveRobotForward(27);
 
         //move three blocks
