@@ -105,7 +105,7 @@ public class AutonAccentParkHang extends LinearOpMode {
            throw new RuntimeException(e);
        }
         //raise the arm and move the slider
-        moveArmDown(145);
+        moveArmDown(155);
         moveSliderOut(45);
 
     }

@@ -68,23 +68,20 @@ public class AutonObservationPark extends LinearOpMode {
         lockArmThread.start();
 
         //go to block pushing position
-        moveRobotRight(4);
+        moveRobotRight(7);
         moveRobotForward(50);
 
         //move three blocks
-        moveRobotRight(15);
-        moveRobotBack(47);
-        moveRobotForward(5);
-        moveRobotLeft(14);
-        moveRobotBack(11);
-        moveRobotRight(20);
-        moveRobotLeft(5);
-        moveRobotForward(51);
         moveRobotRight(14);
-        moveRobotBack(53);
-        moveRobotForward(51);
-        moveRobotRight(11);
-        moveRobotBack(53);
+        moveRobotBack(47);
+        moveRobotForward(47);
+
+        moveRobotRight(8);
+        moveRobotBack(47);
+        moveRobotForward(48);
+        moveRobotRight(10);
+
+        moveRobotBack(42);
 
         stopRobot(0);
         //wait for the armlock thread to complete
