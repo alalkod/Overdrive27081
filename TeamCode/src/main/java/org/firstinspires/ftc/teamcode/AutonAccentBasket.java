@@ -63,7 +63,7 @@ public class AutonAccentBasket extends LinearOpMode {
             telemetry.update();
 
             long startTime = System.currentTimeMillis();
-            long duration = 22000;
+            long duration = 18000;
 
 
             while (System.currentTimeMillis() - startTime < duration) {
@@ -95,26 +95,24 @@ public class AutonAccentBasket extends LinearOpMode {
         moveRobotForward(27);
 
         //move three blocks
-        moveRobotLeft(15);
+        moveRobotLeft(13);
         moveRobotBack(44);
         moveRobotForward(5);
+        stopRobot(250);
         moveRobotRight(14);
         moveRobotBack(11);
+        stopRobot(250);
         moveRobotLeft(20);
         sleep(200);
         moveRobotRight(5);
         moveRobotForward(51);
         moveRobotLeft(13);
         moveRobotBack(53);
-        moveRobotForward(51);
-        moveRobotLeft(10);
-        moveRobotBack(53);
-        moveRobotRight(5);
 
 
         //goto the parking
         moveRobotForward(56);
-        turnRobotRight(110);
+        turnRobotRight(100);
         moveRobotForward(25);
         stopRobot(0);
         //wait for the armlock thread to complete
@@ -124,7 +122,7 @@ public class AutonAccentBasket extends LinearOpMode {
             throw new RuntimeException(e);
         }
         //raise the arm and move the slider
-        moveArmDown(165);
+        //moveArmDown(165);
         moveSliderOut(35);
     }
 
